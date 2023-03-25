@@ -2,6 +2,8 @@ import datetime
 from typing import final, Callable, Protocol, TypedDict
 from typing_extensions import Unpack
 
+from django_fakery.faker_factory import Factory
+
 from mimesis.schema import Field, Schema
 import pytest
 
@@ -39,22 +41,18 @@ class RegistrationData(UserData, total=False):
 @final
 class UserDataFactory(Protocol):
     def __call__(self, **fields: Unpack[UserData]) -> UserData:
-        """Profile data factory protocol."""
+        """User data factory protocol."""
 
 
 @final
 class RegistrationDataFactory(Protocol):
     def __call__(self, **fields: Unpack[RegistrationData]) -> RegistrationData:
-        """Profile data factory protocol."""
-
-
-@pytest.fixture
-def mf() -> Field:
-    return Field()
+        """Registration data factory protocol."""
 
 
 @pytest.fixture
 def user_data_factory(mf) -> RegistrationDataFactory:
+    """A factory to generate a `RegistrationData` dict."""
     def factory(**fields: Unpack[RegistrationData]) -> RegistrationData:
         schema = Schema(
             schema=lambda: {
@@ -110,11 +108,67 @@ def assert_correct_user() -> UserAssertion:
 
     return factory
 
+
 @pytest.fixture
-def user_password(mf) -> str:
+def new_user_password(mf) -> str:
+    """Password of the current user."""
     return mf('person.password')
+
+
+@pytest.fixture
+def user_password(new_user_password: str) -> str:
+    return new_user_password
+
 
 @pytest.fixture
 def user_second_password(mf) -> str:
     return mf('person.password')
 
+
+@pytest.fixture
+def user_email(mf) -> str:
+    return mf('person.email')
+
+
+@final
+class UserFactory(Protocol):  # type: ignore[misc]
+    """A factory to generate a `User` instance."""
+
+    def __call__(self, **fields) -> User:
+        """Profile data factory protocol."""
+
+
+@pytest.fixture()
+def user_factory(fakery: Factory[User], faker_seed: int) -> UserFactory:
+    """Creates a factory to generate a user instance."""
+    return fakery.m(User, seed=faker_seed)
+
+
+@pytest.fixture()
+def user(
+    user_factory: UserFactory,
+    user_email: str,
+    user_password: str,
+) -> User:
+    """The current user fixture.
+    """
+    return user_factory(
+        email=user_email,
+        password=user_password,
+        is_active=True,
+    )
+
+
+@pytest.fixture()
+def user_inactive(
+    user_factory: UserFactory,
+    user_email: str,
+    user_password: str,
+) -> User:
+    """The current inactive user fixture.
+    """
+    return user_factory(
+        email=user_email,
+        password=user_password,
+        is_active=False,
+    )

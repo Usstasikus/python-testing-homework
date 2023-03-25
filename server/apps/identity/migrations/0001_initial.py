@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
                 ('email', models.EmailField(max_length=254, unique=True)),
                 ('first_name', models.CharField(max_length=254)),
                 ('last_name', models.CharField(max_length=254)),
-                ('date_of_birth', models.DateField(blank=True, null=True)),
+                ('date_of_birth', models.DateField(blank=False, null=True)),  # as it is in Required Fields
                 ('address', models.CharField(max_length=254)),
                 ('job_title', models.CharField(max_length=254)),
                 ('phone', models.CharField(max_length=254)),
