@@ -58,7 +58,7 @@ class User(AbstractBaseUser, PermissionsMixin, TimedMixin):
     # Details:
     first_name = models.CharField(max_length=_NAME_LENGTH)
     last_name = models.CharField(max_length=_NAME_LENGTH)
-    date_of_birth = models.DateField(null=False, blank=True)  # as it is in Required Fields
+    date_of_birth = models.DateField(null=True, blank=False)  # as it is in Required Fields
     address = models.CharField(max_length=_NAME_LENGTH)
     job_title = models.CharField(max_length=_NAME_LENGTH)
 
