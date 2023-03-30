@@ -28,6 +28,11 @@ class UserData(TypedDict, total=False):
     phone: str
 
 
+@pytest.fixture(scope='session')
+def mf(faker_seed: int) -> Field:
+    """Returns the current mimesis `Field`."""
+    return Field(seed=faker_seed)
+
 @final
 class RegistrationData(UserData, total=False):
     """
@@ -122,6 +127,7 @@ def user_password(new_user_password: str) -> str:
 
 @pytest.fixture
 def user_second_password(mf) -> str:
+    """Returns different password from 'user_password'"""
     return mf('person.password')
 
 

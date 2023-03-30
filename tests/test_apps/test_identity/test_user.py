@@ -13,8 +13,8 @@ FormViewResponse = Union[TemplateResponse, HttpResponseRedirect]
 pytestmark = pytest.mark.django_db
 
 
-if TYPE_CHECKING:
-    from tests.plugins.identity.user import UserAssertion, UserData
+# if TYPE_CHECKING:
+#     from tests.plugins.identity.user import UserAssertion, UserData
 
 
 @pytest.fixture
@@ -37,10 +37,13 @@ def test_valid_registration(
 ) -> None:
     """This test ensures user registration with valid data is success."""
     response = client.post('/identity/registration', data=registration_data)
+
     assert response.status_code == HTTPStatus.FOUND, (
         response.context['form'].errors
     )
-    user = User.objects.all().get(email=registration_data['email'])
+
+    user = User.objects.get(email=registration_data['email'])
+
     assert user.check_password(user_password)
     assert_correct_user(user, registration_data)
 
@@ -59,9 +62,10 @@ def test_registration_missing_required_field(
         '/identity/registration',
         data=registration_data | {missing_field: ''},
     )
+
     assert response.status_code == HTTPStatus.OK
     assert missing_field in response.context['form'].errors
-    assert not User.objects.filter(email=registration_data['email']).exists()
+    assert not User.objects.filter(email=registration_data['email'])
 
 
 def test_invalid_password_registration(
@@ -89,10 +93,12 @@ def test_valid_credentials_login(
 ):
     """User login with valid credentials must be success."""
     request_data = {'username': user.email, 'password': user_password}
+
     response: HttpResponse = client.post(
         '/identity/login',
         data=request_data,
     )
+
     assert isinstance(response, get_args(FormViewResponse))
     assert response.status_code == HTTPStatus.FOUND
     assert response['location'] == '/pictures/dashboard'
@@ -114,6 +120,7 @@ def test_invalid_credentials_login(
         request_data[curr_invalid_field] = (
             'invalid'.format(request_data[curr_invalid_field])
         )
+
     response: HttpResponse = client.post(
         '/identity/login',
         data=request_data,
@@ -133,6 +140,7 @@ def test_inactive_user_login(
 ):
     """User login with credentials of an inactive must fail."""
     request_data = {'username': user_inactive.email, 'password': user_password}
+
     response: HttpResponse = client.post(
         '/identity/login',
         data=request_data,

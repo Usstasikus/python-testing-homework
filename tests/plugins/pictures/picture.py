@@ -28,7 +28,7 @@ class FavouritePictureFieldsFactory(Protocol):
 @pytest.fixture()
 def favourite_picture_fields_factory(mf: Field):
     """Creates a factory to generate a `FavouritePictureFields` dict."""
-    def factory(fields: Unpack[FavouritePictureFields]) -> FavouritePictureFields:
+    def factory(**fields: Unpack[FavouritePictureFields]) -> FavouritePictureFields:
         schema = Schema(
             schema=lambda: {
                 'foreign_id': mf('numeric.increment'),
