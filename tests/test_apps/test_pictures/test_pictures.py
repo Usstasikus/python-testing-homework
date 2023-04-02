@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import TYPE_CHECKING, get_args, Union
+from typing import get_args, Union
 
 import pytest
 from django.test.client import Client
@@ -8,8 +8,6 @@ from django.template.response import TemplateResponse
 
 from server.apps.identity.models import User
 
-if TYPE_CHECKING:
-    from tests.plugins.pictures.favourite_picture import FavouritePictureFactory
 
 FormViewResponse = Union[TemplateResponse, HttpResponseRedirect]
 
@@ -34,7 +32,7 @@ def test_create_favourite_picture_with_valid_data(
     user_logged_client: Client,
     favourite_picture_fields: 'FavouritePictureFields'
 ):
-    """Providing valid data leads to creation of a `FavouritePicture`."""
+    """Valid data provided must lead to  success creation of a `FavouritePicture`."""
     response: HttpResponse = user_logged_client.post(  # type: ignore[assignment]
         '/pictures/dashboard',
         data=favourite_picture_fields,
@@ -47,7 +45,7 @@ def test_create_favourite_picture_with_valid_data(
 
 
 def test_dashboard_picture_list(user_logged_client: Client):
-    """Dashboard should contain picture list."""
+    """Dashboard must contain picture list."""
     response = user_logged_client.get('/pictures/dashboard')
 
     assert response.status_code == HTTPStatus.OK
